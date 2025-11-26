@@ -1,8 +1,8 @@
 # Project Description
 
-**Deployed Frontend URL:** sol-brawl-v1.vercel.app
+**Deployed Frontend URL:** (https://sol-brawl-v1.vercel.app)
 
-**Solana Program ID:** 'EyMxoUu8So5nRVsAewjuWDZM16wVHJEKAzLSHs8kuEr9'
+**Solana Program ID:** `EyMxoUu8So5nRVsAewjuWDZM16wVHJEKAzLSHs8kuEr9`
 
 # SolBrawl 
 
