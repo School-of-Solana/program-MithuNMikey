@@ -1,8 +1,8 @@
 # Project Description
 
-**Deployed Frontend URL:** [TODO: Link to your deployed frontend]
+**Deployed Frontend URL:** sol-brawl-v1.vercel.app
 
-**Solana Program ID:** [TODO: Your deployed program's public key]
+**Solana Program ID:** 'EyMxoUu8So5nRVsAewjuWDZM16wVHJEKAzLSHs8kuEr9'
 
 # SolBrawl 
 
@@ -15,7 +15,7 @@
 ## 🚀 Live Deployment
 
 **Network:** Solana Devnet
-**Program ID:** `9VcxDiDi8kbP6UnaVocXDcSPDwoJiDMxmECdqyALGuA4`
+**Program ID:** `EyMxoUu8So5nRVsAewjuWDZM16wVHJEKAzLSHs8kuEr9`
 **Explorer:** [View on Solana Explorer](https://explorer.solana.com/address/EyMxoUu8So5nRVsAewjuWDZM16wVHJEKAzLSHs8kuEr9?cluster=devnet)
 **Frontend:** Next.js 16 with App Router.
 
