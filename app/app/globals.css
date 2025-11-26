@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fef6e4;
+  --foreground: #001858;
+  --primary: #f582ae;
+  --secondary: #8bd3dd;
+  --accent: #f3d2c1;
+  --success: #06ffa5;
+  --warning: #ffbe0b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Space Grotesk', 'Arial Black', sans-serif;
+  font-weight: 700;
+}
+
+/* Neobrutalism Utilities */
+.neo-brutalism-shadow {
+  box-shadow: 4px 4px 0px 0px #001858;
+}
+
+.neo-brutalism-shadow-lg {
+  box-shadow: 8px 8px 0px 0px #001858;
+}
+
+.neo-brutalism-border {
+  border: 3px solid #001858;
+}
+
+.neo-brutalism-border-thick {
+  border: 4px solid #001858;
+}
+
+/* Button Styles */
+.btn-neo {
+  padding: 0.6rem 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 3px solid black;
+  transition: all 0.2s;
+  box-shadow: 3px 3px 0px 0px #001858;
+}
+
+@media (min-width: 640px) {
+  .btn-neo {
+    padding: 0.75rem 1.5rem;
+    border: 4px solid black;
+    box-shadow: 4px 4px 0px 0px #001858;
+  }
+}
+
+.btn-neo:hover:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #001858;
+}
+
+.btn-neo:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px 0px #001858;
+}
+
+.btn-neo:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Card Styles */
+.card-neo {
+  background: white;
+  border: 3px solid black;
+  padding: 1rem;
+  border-radius: 0;
+  box-shadow: 4px 4px 0px 0px #001858;
+}
+
+@media (min-width: 640px) {
+  .card-neo {
+    border: 4px solid black;
+    padding: 1.5rem;
+    box-shadow: 8px 8px 0px 0px #001858;
+  }
+}
+
+/* Input Styles */
+.input-neo {
+  padding: 0.75rem 1rem;
+  border: 3px solid black;
+  font-weight: 700;
+  box-shadow: 4px 4px 0px 0px #001858;
+}
+
+.input-neo:focus {
+  outline: none;
+  ring: 0;
+}
+
+/* Wallet Button Override */
+.wallet-adapter-button {
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  border: 3px solid black !important;
+  border-radius: 0 !important;
+  background: #f582ae !important;
+  box-shadow: 3px 3px 0px 0px #001858 !important;
+  font-size: 0.75rem !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+@media (min-width: 640px) {
+  .wallet-adapter-button {
+    border: 4px solid black !important;
+    box-shadow: 4px 4px 0px 0px #001858 !important;
+    font-size: 0.875rem !important;
+    padding: 0.75rem 1rem !important;
+  }
+}
+
+.wallet-adapter-button:hover:not(:disabled) {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px 0px #001858 !important;
+}

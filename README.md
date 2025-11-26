@@ -1,95 +1,258 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/TzDKD5h9)
-![School of Solana](https://github.com/Ackee-Blockchain/school-of-solana/blob/master/.banner/banner.png?raw=true)
+# SolBrawl 
 
-## 📚Solana Program
-We are about halfway through the course, and you already have some experience with programming on Solana. It is time to create something on your own! You will be building a dApp that will serve as the culmination of everything you have learned so far. Feel free to implement whatever comes to your mind, (as long as it passes the requirements).
+> A decentralized, gas-free contest platform built on Solana
 
-**This does not mean that the School of Solana is coming to an end just yet!** There are still several exciting lectures ahead, as well as one security related task.
+[![Anchor Version](https://img.shields.io/badge/Anchor-0.32.1-blue)](https://www.anchor-lang.com/)
+[![Solana](https://img.shields.io/badge/Solana-Program-green)](https://solana.com/)
+[![Deployed](https://img.shields.io/badge/Deployed-Devnet-orange)](https://explorer.solana.com/address/EyMxoUu8So5nRVsAewjuWDZM16wVHJEKAzLSHs8kuEr9?cluster=devnet)
 
-### Task details
-This task consists of two parts:
-1. **Core of your dApp**
-    - A deployed Solana program.
-2. **Frontend**
-    - A simple frontend to interact with the dApp.
+## 🚀 Live Deployment
 
-### Requirements
-- An Anchor program deployed on **Devnet** or **Mainnet**.
-- The Anchor program must use a PDA (Program Derived Address).
-- At least one TypeScript **test** for each Anchor program instruction. These tests should cover both **happy** and **unhappy** (intentional error-triggering) scenarios.
-- A simple **frontend** deployed using your preferred provider (for more info, check below).
-- A filled out **PROJECT_DESCRIPTION.md** file.
+**Network:** Solana Devnet
+**Program ID:** `9VcxDiDi8kbP6UnaVocXDcSPDwoJiDMxmECdqyALGuA4`
+**Explorer:** [View on Solana Explorer](https://explorer.solana.com/address/EyMxoUu8So5nRVsAewjuWDZM16wVHJEKAzLSHs8kuEr9?cluster=devnet)
+**Frontend:** Next.js 16 with App Router.
 
-### Ideas
-We highly recommend starting with something simple. Take time to think through your project and work on it in iterations. Do not try to implement everything at once!
+### Quick Access
+- **RPC Endpoint:** `https://api.devnet.solana.com`
+- **Program IDL:** Available in `target/idl/solarena.json`
+- **Frontend App:** Located in `/app` directory
 
-Below is a list of few ideas to get you started:
-- **Social app**
-    - Instagram
-    - Giphy
-    - Friendtech
-    - Spotify
-- **Blog**
-- **Voting** ([D21 - Janeček method](https://www.ih21.org/en/guidelines))
-- **DeFi**
-    - Raffles
-    - Escrow
-    - Tipping
-    - Lending ([Save Documentation](https://docs.save.finance/))
-    - Liquid Staking ([Marinade Documentation](https://docs.marinade.finance/))
-    - Data Query with Pyth ([Pyth Documentation](https://docs.pyth.network/price-feeds))
-    - AMM ([Raydium Documentation](https://raydium.gitbook.io/raydium/))
-- **Gaming**
-    - Browser Game ([Gaming on Solana](https://solanacookbook.com/gaming/nfts-in-games.html#nfts-in-games))
+## Overview
 
-### Deadline
-The deadline for this task is **Wednesday, November 19th, at 23:59 UTC**.
->[!CAUTION]
->Note that we will not accept submissions after the deadline.
+SolArena is a decentralized contest and bounty platform that enables organizations to launch competitions with built-in escrow, multisig judging, and optional transaction fee sponsorship. Participants can submit entries without needing SOL for gas fees, removing barriers to entry.
 
-### Submission
-There are two folders, one for the Anchor project, and one for the frontend. Push your changes to the **main** branch of **this** repository.
 
->[!IMPORTANT]
->It is essential that you fill out the `PROJECT_DESCRIPTION.md` template completely and accurately. This document will be used by AI for the initial evaluation, so provide detailed information about your project, including working links, clear descriptions, and technical implementation details.
+## Core Features
 
->[!NOTE]
->Your submission repository is public. Feel free to share the link to showcase your work!
+### 🏆 SOL-Based Prizes
+- Direct SOL prize amounts (no price oracles needed)
+- Transparent prize pools held in escrow
+- Prizes locked until winner consensus is reached
 
-### Evaluation
-The evaluation process is based on the **requirements**. If you meet the requirements, you pass the task!
+### 🔒 Built-in Escrow System
+- Automatic fund locking using PDAs
+- Trustless prize distribution
+- Time-locked fund recovery (30 days after deadline)
 
->[!NOTE]
->The first round of evaluations will be conducted by AI to verify requirements before manual review. AI can make mistakes. If you believe you fulfilled all requirements but weren't graded correctly, please create a support ticket and we will resolve the issue.
+### ⚖️ Multisig Judging
+- Configurable judge panel (up to 5 judges)
+- Customizable approval threshold (e.g., 2-of-3, 3-of-5)
+- Independent voting with on-chain transparency
+- Automatic prize distribution when consensus is reached
 
->[!CAUTION]
->We expect original work that demonstrates your understanding and creativity. While you may draw inspiration from examples covered in lessons and tasks, **direct copying is not acceptable**. If you choose to build upon an example from the School of Solana materials, you must significantly expand it with additional features, instructions, and functionality to showcase your learning progress. 
+### ⛽ Gas Sponsorship (Optional)
+- Contest creators can sponsor transaction fees
+- Enables barrier-free participation (users don't need SOL)
+- Separate gas pool per contest
 
-### Example Workflow
-Let's say you are going to implement the Twitter dApp as the Solana Program. Here's how the steps could look:
+### 📝 Submission Management
+- URL-based submissions (GitHub repos, demos, portfolios, etc.)
+- One submission per participant per contest
+- Update capability before deadline
+- Timestamp tracking for all submissions
 
-**1.** Implement Twitter dApp using the Anchor framework.
+## Contest Lifecycle
 
-**2.** Test the Twitter dApp using the Anchor framework.
+```
+┌─────────────┐
+│   Setup     │  Creator calls create_contest()
+└──────┬──────┘
+       │
+       │ fund_contest()
+       ▼
+┌─────────────┐
+│   Active    │  Accepting submissions
+└──────┬──────┘
+       │
+       │ Deadline passes
+       ▼
+┌─────────────┐
+│  Judging    │  Judges vote on winner
+└──────┬──────┘
+       │
+       │ Consensus reached
+       ▼
+┌─────────────┐
+│ Completed   │  Prize distributed
+└─────────────┘
+```
 
-**3.** Deploy the Twitter dApp on the Solana Devnet.
 
-**4.** Using the create solana dapp template, implement frontend for the Twitter dApp.
 
-**5.** Publish Frontend using [Vercel](https://vercel.com). Ensure the deployment is publicly accessible.
+## Technical Architecture
 
-**6.** Fill out the PROJECT_DESCRIPTION.md template.
+### Account Structure
 
-**7.** Submit the Twitter dApp using GitHub Classroom.
+SolArena uses 5 types of Program Derived Addresses (PDAs):
 
-### Useful Links
-- [Vercel](https://vercel.com)
-- [Create Solana Dapp](https://github.com/solana-foundation/create-solana-dapp)
-- [Account Macro Constraints](https://docs.rs/anchor-lang/0.31.1/anchor_lang/derive.Accounts.html)
-- [Solana Developers Courses](https://solana.com/developers/courses)
+```
+Contest PDA
+├── Seeds: ["contest", creator, contest_id]
+├── Stores: metadata, prize amount, judges, status
+│
+├─── Escrow PDA
+│    ├── Seeds: ["escrow", creator, contest_id]
+│    └── Holds: Prize SOL (locked until distribution)
+│
+├─── Gas Pool PDA (optional)
+│    ├── Seeds: ["gas_pool", contest]
+│    └── Holds: SOL for sponsored transactions
+│
+├─── Submission PDAs (one per participant)
+│    ├── Seeds: ["submission", contest, participant]
+│    └── Stores: submission URL, timestamps
+│
+└─── Vote PDAs (one per judge)
+     ├── Seeds: ["vote", contest, judge]
+     └── Stores: winner selection, vote timestamp
+```
 
------
+### State Machine
 
-### Need help?
->[!TIP]
->If you have any questions, feel free to reach out to us on [Discord](https://discord.gg/z3JVuZyFnp).
+```
+Setup ──fund_contest()──> Active ──distribute_prizes()──> Completed
+  │
+  └──reclaim_funds()──> Cancelled
+     (after 30 days)
+```
+
+## Program Instructions
+
+| Instruction | Description | Signer |
+|------------|-------------|--------|
+| `create_contest` | Initialize new contest with metadata | Creator |
+| `fund_contest` | Transfer SOL to escrow, activate contest | Creator |
+| `enable_gas_sponsorship` | Fund gas pool for free participation | Creator |
+| `submit_entry` | Participant submits entry URL | Participant |
+| `update_submission` | Update entry before deadline | Participant |
+| `judge_vote` | Judge votes for winner | Judge |
+| `distribute_prizes` | Distribute funds when consensus reached | Anyone |
+| `reclaim_funds` | Recover funds if contest expires | Creator |
+
+## Key Anchor Concepts Demonstrated
+
+### 1. PDAs (Program Derived Addresses)
+- 5 different PDA types with various seed patterns
+- Deterministic account addressing
+- PDA signing for escrow transfers
+
+### 2. Account Constraints
+- `init` - Account initialization
+- `has_one` - Relationship validation
+- `seeds` + `bump` - PDA verification
+- `mut` - Mutable accounts
+
+### 3. Cross-Program Invocations (CPIs)
+- CPI to System Program for SOL transfers
+- Using CpiContext for structured CPIs
+
+### 4. Space Calculation
+- Using `InitSpace` macro for automatic sizing
+- Proper sizing for String and Vec fields
+
+### 5. Multisig Pattern
+- Independent judge voting via PDAs
+- Vote aggregation using `remaining_accounts`
+- Consensus validation
+
+### 6. State Management
+- Enum-based contest lifecycle
+- State transition validation
+- Time-based access control
+
+## Security Features
+
+-  **Authorization**: `has_one` constraints + runtime checks
+-  **PDA Security**: Only program can sign with PDAs
+-  **Time Locks**: Deadline enforcement, 30-day reclaim period
+-  **Integer Safety**: Saturating arithmetic for counters
+-  **Input Validation**: String length, URL format, parameter ranges
+-  **State Validation**: Proper state transition checks
+
+## Use Cases
+
+| Use Case | Description |
+|----------|-------------|
+| 🏗️ **Hackathons** | Organize coding competitions with prizes |
+| 💰 **Bounty Programs** | Reward specific development work |
+| 🎨 **Design Contests** | Logo, artwork, content creation |
+| 🎮 **Community Challenges** | Engage community with rewards |
+| 🐛 **Bug Bounties** | Incentivize security research |
+
+## Project Structure
+
+```
+solana-contest-platform/
+├── app/                        # Frontend (Next.js 16 + App Router)
+│   ├── app/
+│   │   ├── components/         # UI components (Nav, WalletButton)
+│   │   ├── contests/           # Contest pages (list, create, details)
+│   │   ├── lib/                # Program client, types, IDL
+│   │   └── providers/          # Solana wallet provider
+│   └── public/                 # Static assets
+│
+├── programs/solana-contest-platform/src/
+│   ├── lib.rs                  # Program entry point
+│   ├── errors.rs               # Custom error codes
+│   ├── state/
+│   │   ├── contest.rs          # Contest account + status enum
+│   │   ├── submission.rs       # Submission account
+│   │   └── vote.rs             # Judge vote account
+│   └── instructions/
+│       ├── create_contest.rs   # Initialize new contest
+│       ├── fund_contest.rs     # Fund escrow + activate
+│       ├── enable_gas_sponsorship.rs  # Enable fee sponsorship
+│       ├── submit_entry.rs     # Submit entry URL
+│       ├── update_submission.rs # Update entry before deadline
+│       ├── judge_vote.rs       # Judge votes for winner
+│       ├── distribute_prizes.rs # Distribute when consensus reached
+│       └── reclaim_funds.rs    # Reclaim expired funds
+│
+├── tests/                      # Integration tests
+├── migrations/                 # Deployment scripts
+└── target/deploy/              # Compiled program + keypair
+```
+
+
+
+## Development
+
+### Prerequisites
+
+- Rust 1.70+
+- Solana CLI 1.18+
+- Anchor 0.32.1+
+- Node.js 16+
+- Yarn
+
+### Setup
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/meowyx/solana-contest-platform
+cd solana-contest-platform
+```
+
+2. **Install dependencies**
+```bash
+yarn install
+```
+
+3. **Build the program**
+```bash
+anchor build
+```
+
+4. **Run tests**
+```bash
+anchor test
+```
+
+
+
+
+
+
+
+

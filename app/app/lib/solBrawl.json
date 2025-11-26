@@ -1,0 +1,932 @@
+{
+  "address": "EyMxoUu8So5nRVsAewjuWDZM16wVHJEKAzLSHs8kuEr9",
+  "metadata": {
+    "name": "solBrawl",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "SolBrawl: Gas-free contest platform on Solana with SOL prizes"
+  },
+  "docs": [
+    "SolBrawl - A decentralized, gas-free contest platform on Solana",
+    "",
+    "This program enables organizations to launch competitions with:",
+    "- Built-in escrow for SOL prizes",
+    "- Multisig judging with configurable thresholds",
+    "- Optional transaction fee sponsorship",
+    "- Trustless prize distribution",
+    "",
+    "# Architecture",
+    "- 8 Instructions for full contest lifecycle",
+    "- 5 PDA types for accounts (contest, escrow, gas_pool, submission, vote)",
+    "- State machine for contest status management",
+    "- Time-based access control with deadlines",
+    "",
+    "# Security Features",
+    "- PDA-based authorization",
+    "- Input validation",
+    "- State transition validation",
+    "- Time-locked operations",
+    "- Integer overflow protection"
+  ],
+  "instructions": [
+    {
+      "name": "create_contest",
+      "docs": [
+        "Creates a new contest with SOL prizes",
+        "",
+        "# Arguments",
+        "* `contest_id` - Unique identifier for the contest",
+        "* `title` - Contest title (max 100 chars)",
+        "* `description` - Contest description (max 500 chars)",
+        "* `prize_amount` - Prize in lamports (min 0.01 SOL)",
+        "* `submission_deadline` - Unix timestamp for deadline",
+        "* `judges` - List of authorized judge public keys (max 5)",
+        "* `approval_threshold` - Votes needed for consensus (e.g., 2 of 3)"
+      ],
+      "discriminator": [
+        129,
+        189,
+        164,
+        27,
+        152,
+        242,
+        123,
+        93
+      ],
+      "accounts": [
+        {
+          "name": "contest",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  116,
+                  101,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              },
+              {
+                "kind": "arg",
+                "path": "contest_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "contest_id",
+          "type": "u64"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "prize_amount",
+          "type": "u64"
+        },
+        {
+          "name": "submission_deadline",
+          "type": "i64"
+        },
+        {
+          "name": "judges",
+          "type": {
+            "vec": "pubkey"
+          }
+        },
+        {
+          "name": "approval_threshold",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "distribute_prizes",
+      "docs": [
+        "Distributes prizes when consensus is reached",
+        "",
+        "Counts votes from remaining_accounts and transfers",
+        "prize to winner if threshold is met"
+      ],
+      "discriminator": [
+        154,
+        99,
+        201,
+        93,
+        82,
+        104,
+        73,
+        232
+      ],
+      "accounts": [
+        {
+          "name": "contest",
+          "writable": true
+        },
+        {
+          "name": "escrow",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "contest.creator",
+                "account": "Contest"
+              },
+              {
+                "kind": "account",
+                "path": "contest.contest_id",
+                "account": "Contest"
+              }
+            ]
+          }
+        },
+        {
+          "name": "winner",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "enable_gas_sponsorship",
+      "docs": [
+        "Enables gas sponsorship for the contest",
+        "",
+        "# Arguments",
+        "* `gas_budget` - Amount of SOL to allocate for gas fees"
+      ],
+      "discriminator": [
+        141,
+        160,
+        106,
+        155,
+        237,
+        47,
+        207,
+        245
+      ],
+      "accounts": [
+        {
+          "name": "contest",
+          "writable": true
+        },
+        {
+          "name": "gas_pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  97,
+                  115,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "contest"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "contest"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "gas_budget",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "fund_contest",
+      "docs": [
+        "Funds the contest escrow to activate it",
+        "",
+        "Transfers the prize amount from creator to escrow PDA",
+        "and changes contest status from Setup to Active"
+      ],
+      "discriminator": [
+        131,
+        126,
+        81,
+        253,
+        171,
+        175,
+        45,
+        167
+      ],
+      "accounts": [
+        {
+          "name": "contest",
+          "writable": true
+        },
+        {
+          "name": "escrow",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              },
+              {
+                "kind": "account",
+                "path": "contest.contest_id",
+                "account": "Contest"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "contest"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "judge_vote",
+      "docs": [
+        "Judge votes for a winner",
+        "",
+        "# Arguments",
+        "* `winner` - Public key of the winning participant"
+      ],
+      "discriminator": [
+        188,
+        220,
+        58,
+        36,
+        177,
+        17,
+        44,
+        176
+      ],
+      "accounts": [
+        {
+          "name": "contest",
+          "writable": true
+        },
+        {
+          "name": "vote",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  111,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "contest"
+              },
+              {
+                "kind": "account",
+                "path": "judge"
+              }
+            ]
+          }
+        },
+        {
+          "name": "judge",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "winner",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "reclaim_funds",
+      "docs": [
+        "Reclaims unused funds after contest expiry",
+        "",
+        "Available 30 days after deadline if contest not completed"
+      ],
+      "discriminator": [
+        38,
+        246,
+        147,
+        248,
+        43,
+        41,
+        43,
+        198
+      ],
+      "accounts": [
+        {
+          "name": "contest",
+          "writable": true
+        },
+        {
+          "name": "escrow",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              },
+              {
+                "kind": "account",
+                "path": "contest.contest_id",
+                "account": "Contest"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "contest"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "submit_entry",
+      "docs": [
+        "Submits an entry to the contest",
+        "",
+        "# Arguments",
+        "* `submission_url` - HTTPS URL to the submission (max 200 chars)"
+      ],
+      "discriminator": [
+        150,
+        212,
+        114,
+        178,
+        207,
+        212,
+        216,
+        222
+      ],
+      "accounts": [
+        {
+          "name": "contest",
+          "writable": true
+        },
+        {
+          "name": "submission",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  117,
+                  98,
+                  109,
+                  105,
+                  115,
+                  115,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "contest"
+              },
+              {
+                "kind": "account",
+                "path": "participant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "participant",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "submission_url",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "update_submission",
+      "docs": [
+        "Updates an existing submission before deadline",
+        "",
+        "# Arguments",
+        "* `new_url` - New HTTPS URL for the submission"
+      ],
+      "discriminator": [
+        177,
+        143,
+        162,
+        63,
+        208,
+        227,
+        103,
+        173
+      ],
+      "accounts": [
+        {
+          "name": "contest",
+          "writable": true
+        },
+        {
+          "name": "submission",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  117,
+                  98,
+                  109,
+                  105,
+                  115,
+                  115,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "contest"
+              },
+              {
+                "kind": "account",
+                "path": "participant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "participant",
+          "signer": true,
+          "relations": [
+            "submission"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "new_url",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Contest",
+      "discriminator": [
+        216,
+        26,
+        88,
+        18,
+        251,
+        80,
+        201,
+        96
+      ]
+    },
+    {
+      "name": "JudgeVoteAccount",
+      "discriminator": [
+        21,
+        249,
+        131,
+        113,
+        123,
+        94,
+        208,
+        11
+      ]
+    },
+    {
+      "name": "Submission",
+      "discriminator": [
+        58,
+        194,
+        159,
+        158,
+        75,
+        102,
+        178,
+        197
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "TitleTooLong",
+      "msg": "Title must be 100 characters or less"
+    },
+    {
+      "code": 6001,
+      "name": "DescriptionTooLong",
+      "msg": "Description must be 500 characters or less"
+    },
+    {
+      "code": 6002,
+      "name": "TooManyJudges",
+      "msg": "Maximum 5 judges allowed"
+    },
+    {
+      "code": 6003,
+      "name": "NoJudges",
+      "msg": "At least one judge required"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidThreshold",
+      "msg": "Approval threshold cannot exceed number of judges"
+    },
+    {
+      "code": 6005,
+      "name": "PrizeTooLow",
+      "msg": "Prize must be at least 0.01 SOL (10,000,000 lamports)"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidDeadline",
+      "msg": "Deadline must be in the future"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidContestState",
+      "msg": "Contest is not in the correct state for this operation"
+    },
+    {
+      "code": 6008,
+      "name": "AlreadyFunded",
+      "msg": "Contest already funded"
+    },
+    {
+      "code": 6009,
+      "name": "CalculationOverflow",
+      "msg": "Calculation overflow occurred"
+    },
+    {
+      "code": 6010,
+      "name": "UrlTooLong",
+      "msg": "URL must be 200 characters or less"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidUrl",
+      "msg": "URL must start with https://"
+    },
+    {
+      "code": 6012,
+      "name": "SubmissionDeadlinePassed",
+      "msg": "Submission deadline has passed"
+    },
+    {
+      "code": 6013,
+      "name": "UnauthorizedParticipant",
+      "msg": "Only the original participant can update this submission"
+    },
+    {
+      "code": 6014,
+      "name": "UnauthorizedCreator",
+      "msg": "Only the contest creator can perform this action"
+    },
+    {
+      "code": 6015,
+      "name": "UnauthorizedJudge",
+      "msg": "Only authorized judges can vote"
+    },
+    {
+      "code": 6016,
+      "name": "SubmissionPeriodNotEnded",
+      "msg": "Submission period has not ended yet"
+    },
+    {
+      "code": 6017,
+      "name": "ContestNotFunded",
+      "msg": "Contest has not been funded"
+    },
+    {
+      "code": 6018,
+      "name": "ConsensusNotReached",
+      "msg": "Required consensus threshold not reached"
+    },
+    {
+      "code": 6019,
+      "name": "ContestAlreadyCompleted",
+      "msg": "Contest already completed"
+    },
+    {
+      "code": 6020,
+      "name": "ReclaimPeriodNotReached",
+      "msg": "Reclaim period not yet reached"
+    }
+  ],
+  "types": [
+    {
+      "name": "Contest",
+      "docs": [
+        "Contest account stores all contest metadata and state",
+        "",
+        "# Space Calculation:",
+        "- Discriminator: 8 bytes (added by #[account])",
+        "- Pubkey fields: 32 bytes each",
+        "- u64/i64: 8 bytes each",
+        "- String: 4 bytes (length) + max_len",
+        "- Vec<Pubkey>: 4 bytes (length) + (max_len * 32)",
+        "- bool: 1 byte",
+        "- u8: 1 byte",
+        "",
+        "Total: ~853 bytes (calculated automatically by InitSpace)"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "contest_id",
+            "type": "u64"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "prize_amount",
+            "type": "u64"
+          },
+          {
+            "name": "submission_deadline",
+            "type": "i64"
+          },
+          {
+            "name": "judges",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "approval_threshold",
+            "type": "u8"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "ContestStatus"
+              }
+            }
+          },
+          {
+            "name": "submission_count",
+            "type": "u32"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "gas_sponsorship_enabled",
+            "type": "bool"
+          },
+          {
+            "name": "funded",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ContestStatus",
+      "docs": [
+        "Contest lifecycle states",
+        "",
+        "# State Machine:",
+        "Setup → (fund_contest) → Active → (distribute_prizes) → Completed",
+        "↓",
+        "Cancelled (via reclaim_funds after 30 days)",
+        "",
+        "# Anchor Concept: InitSpace for Enums",
+        "InitSpace automatically calculates enum size as 1 byte (for up to 256 variants)"
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Setup"
+          },
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Judging"
+          },
+          {
+            "name": "Completed"
+          },
+          {
+            "name": "Cancelled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "JudgeVoteAccount",
+      "docs": [
+        "Judge vote account for multisig consensus",
+        "",
+        "# Multisig Pattern:",
+        "Instead of a complex multisig contract, we use simple PDAs:",
+        "- Each judge creates their own vote PDA",
+        "- distribute_prizes counts matching votes",
+        "- Threshold determines consensus"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "judge",
+            "type": "pubkey"
+          },
+          {
+            "name": "contest",
+            "type": "pubkey"
+          },
+          {
+            "name": "winner",
+            "type": "pubkey"
+          },
+          {
+            "name": "voted_at",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Submission",
+      "docs": [
+        "Submission account stores participant entry data"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "participant",
+            "type": "pubkey"
+          },
+          {
+            "name": "contest",
+            "type": "pubkey"
+          },
+          {
+            "name": "submission_url",
+            "type": "string"
+          },
+          {
+            "name": "submitted_at",
+            "type": "i64"
+          },
+          {
+            "name": "last_modified",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}
