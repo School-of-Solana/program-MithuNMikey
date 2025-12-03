@@ -26,7 +26,7 @@
 
 ## Overview
 
-SolArena is a decentralized contest and bounty platform that enables organizations to launch competitions with built-in escrow, multisig judging, and optional transaction fee sponsorship. Participants can submit entries without needing SOL for gas fees, removing barriers to entry.
+SolBrawl is a decentralized contest and bounty platform that enables organizations to launch competitions with built-in escrow, multisig judging, and optional transaction fee sponsorship. Participants can submit entries without needing SOL for gas fees, removing barriers to entry.
 
 
 ## Core Features
@@ -90,7 +90,7 @@ SolArena is a decentralized contest and bounty platform that enables organizatio
 
 ### Account Structure
 
-SolArena uses 5 types of Program Derived Addresses (PDAs):
+SolBrawl uses 5 types of Program Derived Addresses (PDAs):
 
 ```
 Contest PDA
